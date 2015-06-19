@@ -735,23 +735,14 @@ func (v *Viper) ReadInConfig() error {
 
 	v.config = make(map[string]interface{})
 
-	v.marshalReader(bytes.NewReader(file), v.config)
-	return nil
+	return v.marshalReader(bytes.NewReader(file), v.config)
 }
 
 func ReadConfig(in io.Reader) error { return v.ReadConfig(in) }
 func (v *Viper) ReadConfig(in io.Reader) error {
 	v.config = make(map[string]interface{})
-	v.marshalReader(in, v.config)
-	return nil
+	return v.marshalReader(in, v.config)
 }
-
-// func ReadBufConfig(buf *bytes.Buffer) error { return v.ReadBufConfig(buf) }
-// func (v *Viper) ReadBufConfig(buf *bytes.Buffer) error {
-// 	v.config = make(map[string]interface{})
-// 	v.marshalReader(buf, v.config)
-// 	return nil
-// }
 
 // Attempts to get configuration from a remote source
 // and read it in the remote configuration registry.
@@ -775,9 +766,9 @@ func (v *Viper) WatchRemoteConfig() error {
 
 // Marshall a Reader into a map
 // Should probably be an unexported function
-func marshalReader(in io.Reader, c map[string]interface{}) { v.marshalReader(in, c) }
-func (v *Viper) marshalReader(in io.Reader, c map[string]interface{}) {
-	marshallConfigReader(in, c, v.getConfigType())
+func marshalReader(in io.Reader, c map[string]interface{}) error { return v.marshalReader(in, c) }
+func (v *Viper) marshalReader(in io.Reader, c map[string]interface{}) error {
+	return marshallConfigReader(in, c, v.getConfigType())
 }
 
 func (v *Viper) insensitiviseMaps() {
@@ -810,7 +801,10 @@ func (v *Viper) getRemoteConfig(provider *defaultRemoteProvider) (map[string]int
 	if err != nil {
 		return nil, err
 	}
-	v.marshalReader(reader, v.kvstore)
+	err = v.marshalReader(reader, v.kvstore)
+	if err != nil {
+		return nil, err
+	}
 	return v.kvstore, err
 }
 
@@ -832,7 +826,10 @@ func (v *Viper) watchRemoteConfig(provider *defaultRemoteProvider) (map[string]i
 	if err != nil {
 		return nil, err
 	}
-	v.marshalReader(reader, v.kvstore)
+	err = v.marshalReader(reader, v.kvstore)
+	if err != nil {
+		return nil, err
+	}
 	return v.kvstore, err
 }
 
